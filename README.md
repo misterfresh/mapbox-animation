@@ -46,5 +46,9 @@ npm install
 ```
 
 In src/app.js set your API KEY.
+```bash
+npm start
+```
+You should now see markers animating in your browser at the address localhost:3000.
 
 For more information, refer to the official mapbox-gl-js repository.
