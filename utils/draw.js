@@ -1,6 +1,5 @@
 'use strict';
 export default function draw(mapboxgl){
-    mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyZnJlc2giLCJhIjoiYlFEbUhkYyJ9.zW0qmGPMmZsKPmmPwz2F1w';
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v8',

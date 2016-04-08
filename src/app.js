@@ -4,6 +4,7 @@ import now from 'utils/now';
 import draw from 'utils/draw';
 
 window.lastRefresh = now();
+mapboxgl.accessToken = 'YOUR-API-KEY-HERE';
 window.map = draw(mapboxgl);
 
 setTimeout(function(){
