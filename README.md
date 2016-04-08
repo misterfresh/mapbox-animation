@@ -4,6 +4,7 @@ Animate a GeoJSON source easily with Mapbox GL
 
 ```js
 
+map.getSource('vehicles').animate(true);  //To activate animation for this source
 var vehiclesPositions = {
     "type": "FeatureCollection",
     "features": [{
@@ -31,11 +32,14 @@ var vehiclesPositions = {
     }]
 };
 
-map.getSource('vehicles').setData(vehiclesPositions);
+map.getSource('vehicles').setData(vehiclesPositions);  //markers will animate
 
 ```
 
-Just set the "nextPosition" property, and the markers will smoothly transition to the specified coordinates!
+Just set the "nextPosition" property, run the animate method, and the markers will smoothly transition to the specified coordinates!
+
+## Live Demo
+
 
 ## Installation
 

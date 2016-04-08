@@ -106,8 +106,9 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
         this.map = map;
     },
 
-    animate: function(){
-        this.animated = true;
+    animate: function(status){
+        this.animated = status;
+        return this;
     },
 
     loaded: function() {
