@@ -9,8 +9,9 @@ var pixelsToTileUnits = require('../source/pixels_to_tile_units');
 
 
 module.exports = drawSymbols;
-
+var animated = false;
 function drawSymbols(painter, source, layer, coords) {
+    animated = source.animated || false;
     if (painter.isOpaquePass) return;
 
     var drawAcrossEdges = !(layer.layout['text-allow-overlap'] || layer.layout['icon-allow-overlap'] ||
@@ -145,7 +146,7 @@ function drawSymbol(painter, layer, posMatrix, tile, bucket, elementGroups, pref
     painter.frameHistory.bind(gl);
     gl.uniform1i(program.u_fadetexture, 1);
 
-    if(bucket.id === 'vehicles'){
+    if(animated){
         gl.uniform1f(program.u_completion, (browser.now() - window.lastRefresh)/1000);
     }else{
         gl.uniform1f(program.u_completion, 0.0);

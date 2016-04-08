@@ -54,7 +54,6 @@ function GeoJSONSource(options) {
         extent: EXTENT,
         maxZoom: this.maxzoom
     };
-
     this.cluster = options.cluster || false;
     this.superclusterOptions = {
         maxZoom: Math.min(options.clusterMaxZoom, this.maxzoom - 1) || (this.maxzoom - 1),
@@ -107,6 +106,10 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
         this.map = map;
     },
 
+    animate: function(){
+        this.animated = true;
+    },
+
     loaded: function() {
         return this._loaded && this._pyramid.loaded();
     },
@@ -146,6 +149,7 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
             tileSize: this.tileSize,
             source: this.id,
             geojsonVtOptions: this.geojsonVtOptions,
+            animated: this.animated,
             cluster: this.cluster,
             superclusterOptions: this.superclusterOptions
         };
@@ -181,7 +185,8 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
             overscaling: overscaling,
             angle: this.map.transform.angle,
             pitch: this.map.transform.pitch,
-            showCollisionBoxes: this.map.showCollisionBoxes
+            showCollisionBoxes: this.map.showCollisionBoxes,
+            animated: this.animated,
         };
 
         tile.workerID = this.dispatcher.send('load geojson tile', params, function(err, data) {
