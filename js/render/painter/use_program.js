@@ -1,63 +1,61 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
 var assert = require('assert');
 var util = require('../../util/util');
 
 // readFileSync calls must be written out long-form for brfs.
 var definitions = {
     debug: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/debug.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/debug.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/debug.fragment.glsl'),
+        vertexSource: require('raw!shaders/debug.vertex.glsl')
     },
     fill: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/fill.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/fill.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/fill.fragment.glsl'),
+        vertexSource: require('raw!shaders/fill.vertex.glsl')
     },
     circle: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/circle.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/circle.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/circle.fragment.glsl'),
+        vertexSource: require('raw!shaders/circle.vertex.glsl')
     },
     line: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/line.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/line.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/line.fragment.glsl'),
+        vertexSource: require('raw!shaders/line.vertex.glsl')
     },
     linepattern: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/linepattern.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/linepattern.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/linepattern.fragment.glsl'),
+        vertexSource: require('raw!shaders/linepattern.vertex.glsl')
     },
     linesdfpattern: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/linesdfpattern.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/linesdfpattern.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/linesdfpattern.fragment.glsl'),
+        vertexSource: require('raw!shaders/linesdfpattern.vertex.glsl')
     },
     outline: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/outline.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/outline.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/outline.fragment.glsl'),
+        vertexSource: require('raw!shaders/outline.vertex.glsl')
     },
     outlinepattern: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/outlinepattern.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/outlinepattern.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/outlinepattern.fragment.glsl'),
+        vertexSource: require('raw!shaders/outlinepattern.vertex.glsl')
     },
     pattern: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/pattern.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/pattern.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/pattern.fragment.glsl'),
+        vertexSource: require('raw!shaders/pattern.vertex.glsl')
     },
     raster: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/raster.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/raster.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/raster.fragment.glsl'),
+        vertexSource: require('raw!shaders/raster.vertex.glsl')
     },
     icon: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/icon.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/icon.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/icon.fragment.glsl'),
+        vertexSource: require('raw!shaders/icon.vertex.glsl')
     },
     sdf: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/sdf.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/sdf.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/sdf.fragment.glsl'),
+        vertexSource: require('raw!shaders/sdf.vertex.glsl')
     },
     collisionbox: {
-        fragmentSource: fs.readFileSync(path.join(__dirname, '../../../shaders/collisionbox.fragment.glsl'), 'utf8'),
-        vertexSource: fs.readFileSync(path.join(__dirname, '../../../shaders/collisionbox.vertex.glsl'), 'utf8')
+        fragmentSource: require('raw!shaders/collisionbox.fragment.glsl'),
+        vertexSource: require('raw!shaders/collisionbox.vertex.glsl')
     }
 };
 

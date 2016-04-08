@@ -8,7 +8,8 @@ var vt = require('vector-tile');
 var Protobuf = require('pbf');
 var supercluster = require('supercluster');
 
-var geojsonvt = require('geojson-vt');
+//var geojsonvt = require('geojson-vt');
+var geojsonvt = require('deps/geojson-vt');
 var rewind = require('geojson-rewind');
 var GeoJSONWrapper = require('./geojson_wrapper');
 var vtpbf = require('vt-pbf');

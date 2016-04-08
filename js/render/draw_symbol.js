@@ -14,7 +14,7 @@ function drawSymbols(painter, source, layer, coords) {
     if (painter.isOpaquePass) return;
 
     var drawAcrossEdges = !(layer.layout['text-allow-overlap'] || layer.layout['icon-allow-overlap'] ||
-        layer.layout['text-ignore-placement'] || layer.layout['icon-ignore-placement']);
+    layer.layout['text-ignore-placement'] || layer.layout['icon-ignore-placement']);
 
     var gl = painter.gl;
 
@@ -144,6 +144,12 @@ function drawSymbol(painter, layer, posMatrix, tile, bucket, elementGroups, pref
     gl.activeTexture(gl.TEXTURE1);
     painter.frameHistory.bind(gl);
     gl.uniform1i(program.u_fadetexture, 1);
+
+    if(bucket.id === 'vehicles'){
+        gl.uniform1f(program.u_completion, (browser.now() - window.lastRefresh)/1000);
+    }else{
+        gl.uniform1f(program.u_completion, 0.0);
+    }
 
     var group, offset, count, elementOffset;
 

@@ -1,17 +1,23 @@
 {
-  "name": "mapbox-gl",
-  "description": "A WebGL interactive maps library",
+  "name": "mapbox-animation",
+  "description": "Mapbox fork to handle animation",
   "version": "0.16.0",
   "main": "js/mapbox-gl.js",
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mapbox/mapbox-gl-js.git"
+    "url": "git://github.com/misterfresh/mapbox-animation.git"
   },
   "dependencies": {
-    "brfs": "^1.4.0",
+    "babel-core": "^6.4.0",
+    "babel-loader": "^6.2.1",
+    "babel-plugin-transform-runtime": "^6.4.3",
+    "babel-polyfill": "^6.3.14",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-0": "^6.3.13",
+    "babel-runtime": "^6.3.19",
     "csscolorparser": "^1.0.2",
-    "envify": "^3.4.0",
     "feature-filter": "^2.0.1",
     "geojson-rewind": "^0.1.0",
     "geojson-vt": "^2.1.0",
@@ -19,10 +25,10 @@
     "grid-index": "^0.1.0",
     "mapbox-gl-function": "^1.0.0",
     "mapbox-gl-style-spec": "^8.4.2",
-    "minifyify": "^7.0.1",
     "pbf": "^1.3.2",
     "pngjs": "^2.2.0",
     "point-geometry": "^0.0.0",
+    "raw-loader": "^0.5.1",
     "request": "^2.39.0",
     "resolve-url": "^0.2.1",
     "shelf-pack": "^1.0.0",
@@ -30,32 +36,22 @@
     "unassertify": "^2.0.0",
     "unitbezier": "^0.0.0",
     "vector-tile": "^1.2.0",
-    "webworkify": "^1.0.2",
-    "vt-pbf": "^2.0.2"
+    "vt-pbf": "^2.0.2",
+    "webpack": "^1.12.11",
+    "webpack-dev-server": "^1.14.1",
+    "webworkify": "^1.1.0"
   },
   "devDependencies": {
-    "benchmark": "~2.1.0",
-    "browserify": "^13.0.0",
-    "browserify-middleware": "^7.0.0",
-    "coveralls": "^2.11.8",
-    "documentation": "3.0.0",
-    "eslint": "^2.5.3",
-    "eslint-config-mourner": "^2.0.0",
-    "express": "^4.13.4",
-    "gl": "^2.1.5",
-    "istanbul": "^0.4.2",
-    "mapbox-gl-test-suite": "mapbox/mapbox-gl-test-suite#d974ec6b3748a258f8ddd7528e049493390177b4",
-    "nyc": "^6.1.1",
-    "sinon": "^1.15.4",
-    "st": "^1.0.0",
-    "tap": "^5.7.0",
-    "through": "^2.3.7",
-    "watchify": "^3.2.2"
+    "exports-loader": "^0.6.2",
+    "imports-loader": "^0.6.5",
+    "json-loader": "^0.5.4",
+    "matchdep": "^1.0.0",
+    "transform-loader": "^0.2.3",
+    "webworkify-webpack": "^1.0.6"
   },
-  "browserify": {
-    "transform": [
-      "envify",
-      "brfs"
+  "babel": {
+    "presets": [
+      "es2015"
     ]
   },
   "browser": {
@@ -66,15 +62,8 @@
     "./js/util/dispatcher.js": "./js/util/browser/dispatcher.js"
   },
   "scripts": {
-    "start": "node server.js",
-    "get-benchmark-data": "mkdir -p ./bench/data && curl -s https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson > ./bench/data/naturalearth-land.json",
-    "start-docs": "npm run production && npm run docs && jekyll serve -w",
-    "lint": "eslint js test bench && documentation --lint",
-    "build": "browserify -d js/mapbox-gl.js --standalone mapboxgl > dist/mapbox-gl-dev.js && npm run docs",
-    "production": "browserify js/mapbox-gl.js --debug --transform unassertify --plugin [minifyify --map mapbox-gl.js.map --output dist/mapbox-gl.js.map] --standalone mapboxgl > dist/mapbox-gl.js",
-    "prepublish": "npm run build && npm run production",
-    "docs": "documentation --github --format html --theme ./docs/_theme --output docs/api/",
-    "test": "npm run lint && tap --reporter dot test/js/*/*.js # update ci.sh if test invocation changes",
-    "test-suite": "node test/render.test.js && node test/query.test.js # update ci.sh if test invocation changes"
+    "start": "node webpack.dev-server.js  --progress --inline",
+    "build": "webpack",
+    "deploy": "NODE_ENV=production webpack -p --config webpack.production.config.js"
   }
 }

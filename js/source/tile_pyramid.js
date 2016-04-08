@@ -78,9 +78,12 @@ TilePyramid.prototype = {
 
     reload: function() {
         this._cache.reset();
+        var tileCount = 0;
         for (var i in this._tiles) {
             this._load(this._tiles[i]);
+            tileCount++;
         }
+        this.tileCount = tileCount;
     },
 
     /**

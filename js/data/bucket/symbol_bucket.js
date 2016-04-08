@@ -33,7 +33,7 @@ function SymbolBucket(options) {
 
 SymbolBucket.prototype = util.inherit(Bucket, {});
 
-var programAttributeArgs = ['x', 'y', 'ox', 'oy', 'tx', 'ty', 'minzoom', 'maxzoom', 'labelminzoom'];
+var programAttributeArgs = ['x', 'y', 'ox', 'oy', 'tx', 'ty', 'minzoom', 'maxzoom', 'labelminzoom', 'next_x', 'next_y'];
 
 var programAttributes = [{
     name: 'pos',
@@ -66,6 +66,11 @@ var programAttributes = [{
         '(minzoom || 0) * 10',             // minzoom
         'Math.min(maxzoom || 25, 25) * 10' // minzoom
     ]
+},{
+    name: 'next_pos',
+    components: 2,
+    type: 'Int16',
+    value: ['next_x', 'next_y']
 }];
 
 SymbolBucket.prototype.programInterfaces = {
@@ -261,7 +266,14 @@ SymbolBucket.prototype.addFeature = function(lines, shapedText, shapedIcon, feat
 
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
-
+        var nextPos = {
+            x: 0,
+            y:0,
+            z:0
+        };
+        if( lines.length === 1 && lines[0][1] ){
+            nextPos = line[1];
+        }
         // Calculate the anchor points around which you want to place labels
         var anchors;
         if (isLine) {
@@ -308,7 +320,9 @@ SymbolBucket.prototype.addFeature = function(lines, shapedText, shapedIcon, feat
             this.symbolInstances.push(new SymbolInstance(anchor, line, shapedText, shapedIcon, layout,
                         addToBuffers, this.symbolInstances.length, this.collisionBoxArray, featureIndex, this.sourceLayerIndex, this.index,
                         textBoxScale, textPadding, textAlongLine,
-                        iconBoxScale, iconPadding, iconAlongLine));
+                        iconBoxScale, iconPadding, iconAlongLine,
+                        nextPos
+            ));
         }
     }
 };
@@ -456,6 +470,7 @@ SymbolBucket.prototype.addSymbols = function(programName, quads, scale, keepUpri
             br = symbol.br,
             tex = symbol.tex,
             anchorPoint = symbol.anchorPoint,
+            nextPos = symbol.nextPos,
 
             minZoom = Math.max(zoom + Math.log(symbol.minScale) / Math.LN2, placementZoom),
             maxZoom = Math.min(zoom + Math.log(symbol.maxScale) / Math.LN2, 25);
@@ -465,10 +480,10 @@ SymbolBucket.prototype.addSymbols = function(programName, quads, scale, keepUpri
         // Lower min zoom so that while fading out the label it can be shown outside of collision-free zoom levels
         if (minZoom === placementZoom) minZoom = 0;
 
-        var index = addVertex(anchorPoint.x, anchorPoint.y, tl.x, tl.y, tex.x, tex.y, minZoom, maxZoom, placementZoom) - group.vertexStartIndex;
-        addVertex(anchorPoint.x, anchorPoint.y, tr.x, tr.y, tex.x + tex.w, tex.y, minZoom, maxZoom, placementZoom);
-        addVertex(anchorPoint.x, anchorPoint.y, bl.x, bl.y, tex.x, tex.y + tex.h, minZoom, maxZoom, placementZoom);
-        addVertex(anchorPoint.x, anchorPoint.y, br.x, br.y, tex.x + tex.w, tex.y + tex.h, minZoom, maxZoom, placementZoom);
+        var index = addVertex(anchorPoint.x, anchorPoint.y, tl.x, tl.y, tex.x, tex.y, minZoom, maxZoom, placementZoom, nextPos.x, nextPos.y) - group.vertexStartIndex;
+        addVertex(anchorPoint.x, anchorPoint.y, tr.x, tr.y, tex.x + tex.w, tex.y, minZoom, maxZoom, placementZoom, nextPos.x, nextPos.y);
+        addVertex(anchorPoint.x, anchorPoint.y, bl.x, bl.y, tex.x, tex.y + tex.h, minZoom, maxZoom, placementZoom, nextPos.x, nextPos.y);
+        addVertex(anchorPoint.x, anchorPoint.y, br.x, br.y, tex.x + tex.w, tex.y + tex.h, minZoom, maxZoom, placementZoom, nextPos.x, nextPos.y);
         group.vertexLength += 4;
 
         addElement(index, index + 1, index + 2);
@@ -539,7 +554,9 @@ SymbolBucket.prototype.addToDebugBuffers = function(collisionTile) {
 
 function SymbolInstance(anchor, line, shapedText, shapedIcon, layout, addToBuffers, index, collisionBoxArray, featureIndex, sourceLayerIndex, bucketIndex,
                         textBoxScale, textPadding, textAlongLine,
-                        iconBoxScale, iconPadding, iconAlongLine) {
+                        iconBoxScale, iconPadding, iconAlongLine,
+                        nextPos
+) {
 
     this.x = anchor.x;
     this.y = anchor.y;
@@ -547,14 +564,17 @@ function SymbolInstance(anchor, line, shapedText, shapedIcon, layout, addToBuffe
     this.hasText = !!shapedText;
     this.hasIcon = !!shapedIcon;
 
+    this.next_x = nextPos.x;
+    this.next_y = nextPos.y;
+
     if (this.hasText) {
-        this.glyphQuads = addToBuffers ? getGlyphQuads(anchor, shapedText, textBoxScale, line, layout, textAlongLine) : [];
+        this.glyphQuads = addToBuffers ? getGlyphQuads(anchor, shapedText, textBoxScale, line, layout, textAlongLine, nextPos) : [];
         this.textCollisionFeature = new CollisionFeature(collisionBoxArray, line, anchor, featureIndex, sourceLayerIndex, bucketIndex,
                 shapedText, textBoxScale, textPadding, textAlongLine, false);
     }
 
     if (this.hasIcon) {
-        this.iconQuads = addToBuffers ? getIconQuads(anchor, shapedIcon, iconBoxScale, line, layout, iconAlongLine) : [];
+        this.iconQuads = addToBuffers ? getIconQuads(anchor, shapedIcon, iconBoxScale, line, layout, iconAlongLine, nextPos) : [];
         this.iconCollisionFeature = new CollisionFeature(collisionBoxArray, line, anchor, featureIndex, sourceLayerIndex, bucketIndex,
                 shapedIcon, iconBoxScale, iconPadding, iconAlongLine, true);
     }

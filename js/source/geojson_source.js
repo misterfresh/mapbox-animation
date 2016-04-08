@@ -6,7 +6,7 @@ var TilePyramid = require('./tile_pyramid');
 var Source = require('./source');
 var urlResolve = require('resolve-url');
 var EXTENT = require('../data/bucket').EXTENT;
-
+import now from 'utils/now';
 module.exports = GeoJSONSource;
 
 /**
@@ -20,7 +20,6 @@ module.exports = GeoJSONSource;
  * @param {number} [options.cluster] If the data is a collection of point features, setting this to true clusters the points by radius into groups.
  * @param {number} [options.clusterRadius=50] Radius of each cluster when clustering points, in pixels.
  * @param {number} [options.clusterMaxZoom] Max zoom to cluster points on. Defaults to one zoom less than `maxzoom` (so that last zoom features are not clustered).
-
  * @example
  * var sourceObj = new mapboxgl.GeoJSONSource({
  *    data: {
@@ -76,6 +75,7 @@ function GeoJSONSource(options) {
         remove: this._removeTile.bind(this),
         redoPlacement: this._redoTilePlacement.bind(this)
     });
+    this.storedTiles = [];
 }
 
 GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototype */{
@@ -163,6 +163,7 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
             } else {
                 this._pyramid.reload();
                 this.fire('change');
+                this.tileCount = this._pyramid.tileCount;
             }
 
         }.bind(this));
@@ -185,8 +186,6 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
 
         tile.workerID = this.dispatcher.send('load geojson tile', params, function(err, data) {
 
-            tile.unloadVectorData(this.map.painter);
-
             if (tile.aborted)
                 return;
 
@@ -195,18 +194,41 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
                 return;
             }
 
-            tile.loadVectorData(data);
-
-            if (tile.redoWhenDone) {
-                tile.redoWhenDone = false;
-                tile.redoPlacement(this);
-            }
-
+            this._storePreparedTile(tile.uid, data);
             this.fire('tile.load', {tile: tile});
+            this.tileCount--;
+            if(this.tileCount <=0) this._refreshTiles();
 
         }.bind(this), this.workerID);
     },
-
+    _storePreparedTile: function(uid, data) {
+        this.storedTiles[uid] = data;
+    },
+    _loadPreparedTile: function(tile) {
+        var tileData = this.storedTiles[tile.uid];
+        if(!tileData) return;
+        tile.unloadVectorData(this.map.painter);
+        tile.loadVectorData(tileData);
+        if (tile.redoWhenDone) {
+            tile.redoWhenDone = false;
+            tile.redoPlacement(this);
+        }
+    },
+    _refreshTiles: function(){
+        this._pyramid._cache.reset();
+        var pyramidTiles = this._pyramid._tiles;
+        var tileKeys = Object.keys(pyramidTiles);
+        var tileCount = tileKeys.length;
+        var i;
+        for (i = 0; i < tileCount; i++) {
+            var tile = pyramidTiles[tileKeys[i]];
+            this._loadPreparedTile(tile);
+        }
+        window.lastRefresh = now();
+        this.map.animationLoop.set(1000);
+        this.map._rerender();
+        this.storedTiles = [];
+    },
     _abortTile: function(tile) {
         tile.aborted = true;
     },
