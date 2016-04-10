@@ -1,12 +1,12 @@
 {
-  "name": "mapbox-gl",
-  "description": "A WebGL interactive maps library",
+  "name": "mapbox-animation",
+  "description": "Animate markers with Mapbox",
   "version": "0.16.0",
   "main": "js/mapbox-gl.js",
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mapbox/mapbox-gl-js.git"
+    "url": "git://github.com/misterfresh/mapbox-animation.git"
   },
   "dependencies": {
     "brfs": "^1.4.0",

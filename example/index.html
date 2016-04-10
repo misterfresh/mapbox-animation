@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Interpolation Comparison</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type='text/css'>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css' rel='stylesheet' />
+        <script type="text/javascript" src="../dist/mapbox-gl.js" charset="utf-8"></script>
+    </head>
+    <body style="margin: 0; padding: 0; height: 100%; overflow: hidden;">
+        <div id="menu" style="position: fixed; z-index: 90; top: 0px; left: 0px; background-color:#eee; width: 200px;">
+            <div><strong>Edit interpolation settings:</strong></div>
+            <div style="position: relative; top: 2px; left: 0px; width: 200px;">
+                <span>quantity</span>
+                <select class="actions" style="position: absolute; top: 0px; right: 0px;" onchange="resetVehicles(this.value, false, false);">
+                    <option value="1">2</option>
+                    <option value="5">10</option>
+                    <option value="50" selected="selected">100</option>
+                    <option value="100">200</option>
+                    <option value="200">400</option>
+                </select>
+            </div>
+            <div style="position: relative; top: 2px; left: 0px; width: 200px;">
+                <span>delay</span>
+                <select class="actions" style="position: absolute; top: 0px; right: 0px;" onchange="resetVehicles(false, this.value, false);">
+                    <option value="500">500</option>
+                    <option value="1000" selected="selected">1000</option>
+                    <option value="2000">2000</option>
+                </select>
+            </div>
+            <div style="position: relative; top: 2px; left: 0px; width: 200px;">
+                <span>transitionStyle</span>
+                <select class="actions" style="position: absolute; top: 0px; right: 0px;" onchange="resetVehicles(false, false, this.value);">
+                    <option value="none">none</option>
+                    <option value="linear" selected="selected">linear</option>
+                    <option value="bezier">bezier</option>
+                    <option value="midpoints">midpoints</option>
+                    <option value="circle">circle</option>
+                </select>
+            </div>
+        </div>
+        <div id="map" style="position: absolute; top: 0; bottom: 0; width: 100%;"></div>
+        <script type="text/javascript" charset="utf-8">
+
+            mapboxgl.accessToken = 'YOUR API KEY HERE';
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v8',
+                center: [-77.154, 38.899],
+                zoom : 9,
+                attributionControl: true
+            });
+
+            map.on('style.load', function() {
+                map.addSource("vehicles", vehicles);
+
+                map.addLayer({
+                    "id": "vehicles",
+                    "type": "symbol",
+                    "source": "vehicles",
+                    "layout": {
+                        "icon-image": "{marker-symbol}-15",
+                        "text-field": "{title}",
+                        "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
+                        "text-offset": [0, 1.1],
+                        "text-anchor": "top",
+                        "text-size": 10,
+                        "icon-allow-overlap": true,
+                        "icon-ignore-placement": true,
+                        "text-allow-overlap": true,
+                        "text-optional": true,
+                    }
+                });
+                setTimeout(function(){
+                    resetVehicles(50, 1000, 'linear');
+                },1000);
+
+            });
+            map.on('move vehicles', function() {
+                map.getSource('vehicles').setData(moveMarkers());
+            });
+
+            map.quantity = '50';
+            map.delay = '1000';
+            map.transitionStyle = 'linear';
+
+            function resetVehicles(quantity, delay, transitionStyle){
+                if (quantity) {
+                    map.quantity = quantity;
+                } else {
+                    quantity = map.quantity;
+                }
+                if (delay) {
+                    map.delay = delay;
+                } else {
+                    delay = map.delay;
+                }
+                if (transitionStyle) {
+                    map.transitionStyle = transitionStyle;
+                } else {
+                    transitionStyle = map.transitionStyle;
+                }
+
+                var features = [];
+                for(var i =0; i< quantity; i++ ){
+                    features[2*i] = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [-76.93238901390978, 38.913188059745586]
+                        },
+                        "properties": {
+                            "title": "Bicycle",
+                            "marker-symbol": "bicycle"
+                        }
+                    };
+                    features[2*i + 1] = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [-77.13238901390978, 38.813188059745586]
+                        },
+                        "properties": {
+                            "title": "Car",
+                            "marker-symbol": "car"
+                        }
+                    };
+                }
+                vehicles["data"]["features"] = features;
+                map.getSource('vehicles').animate(delay, transitionStyle);
+                map.getSource('vehicles').setData(vehicles.data);
+                if(map.intervalId) clearInterval(map.intervalId);
+                map.intervalId = setInterval(
+                        function(){
+                            map.fire('move vehicles')
+                        }, delay
+                );
+            }
+
+            var vehicles = {
+                "type": "geojson",
+                "data": {
+                    "type": "FeatureCollection",
+                    "features": []
+                }
+            };
+
+            function moveMarkers(){
+                for(var i = 0; i < vehicles.data.features.length; i++){
+                    moveMarker(vehicles.data.features[i]);
+                }
+                return vehicles.data;
+            }
+            function moveMarker(marker){
+                var previousPosition = marker.geometry.coordinates;
+                marker.properties.previousPosition = [previousPosition[0], previousPosition[1]];
+                var currentPosition = marker.properties.nextPosition ? marker.properties.nextPosition : marker.geometry.coordinates;
+                marker.geometry.coordinates = [currentPosition[0], currentPosition[1]];
+                marker.properties.nextPosition = updateCoordinates([currentPosition[0], currentPosition[1]]);
+            }
+            function updateCoordinates(coordinates){
+                return [coordinates[0] + getRandomMove(), coordinates[1] + getRandomMove()];
+            }
+            function getRandomMove(){
+                return (Math.random() - 0.5)/4;
+            }
+        </script>
+    </body>
+</html>

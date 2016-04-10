@@ -6,6 +6,7 @@ var TilePyramid = require('./tile_pyramid');
 var Source = require('./source');
 var urlResolve = require('resolve-url');
 var EXTENT = require('../data/bucket').EXTENT;
+var now = require('../util/browser').now;
 
 module.exports = GeoJSONSource;
 
@@ -76,6 +77,8 @@ function GeoJSONSource(options) {
         remove: this._removeTile.bind(this),
         redoPlacement: this._redoTilePlacement.bind(this)
     });
+    this.storedTiles = [];
+    this.lastRefresh = now();
 }
 
 GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototype */{
@@ -105,6 +108,37 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
 
     onAdd: function(map) {
         this.map = map;
+    },
+
+    animate: function(delay, transitionStyle) {
+        if (delay) {
+            this.animated = true;
+            this.delay = delay;
+            switch (transitionStyle) {
+            case 'none':
+                this.transitionStyle = 0;
+                break;
+            case 'linear':
+                this.transitionStyle = 1;
+                break;
+            case 'bezier':
+                this.transitionStyle = 2;
+                break;
+            case 'midpoints':
+                this.transitionStyle = 3;
+                break;
+            case 'circle':
+                this.transitionStyle = 4;
+                break;
+            default:
+                this.transitionStyle = 1;
+                break;
+            }
+        } else {
+            this.animated = false;
+            this.transitionStyle = 0;
+        }
+        return this;
     },
 
     loaded: function() {
@@ -163,6 +197,7 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
             } else {
                 this._pyramid.reload();
                 this.fire('change');
+                this.tileCount = this._pyramid.tileCount;
             }
 
         }.bind(this));
@@ -185,8 +220,6 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
 
         tile.workerID = this.dispatcher.send('load geojson tile', params, function(err, data) {
 
-            tile.unloadVectorData(this.map.painter);
-
             if (tile.aborted)
                 return;
 
@@ -195,18 +228,45 @@ GeoJSONSource.prototype = util.inherit(Evented, /** @lends GeoJSONSource.prototy
                 return;
             }
 
-            tile.loadVectorData(data);
-
-            if (tile.redoWhenDone) {
-                tile.redoWhenDone = false;
-                tile.redoPlacement(this);
-            }
-
+            this._storePreparedTile(tile.uid, data);
             this.fire('tile.load', {tile: tile});
+            this.tileCount--;
+            if (this.tileCount <= 0) this._refreshTiles();
 
         }.bind(this), this.workerID);
     },
-
+    _storePreparedTile: function(uid, data) {
+        this.storedTiles[uid] = data;
+    },
+    _loadPreparedTile: function(tile) {
+        var tileData = this.storedTiles[tile.uid];
+        if (!tileData) return;
+        tile.unloadVectorData(this.map.painter);
+        tile.loadVectorData(tileData);
+        if (tile.redoWhenDone) {
+            tile.redoWhenDone = false;
+            tile.redoPlacement(this);
+        }
+    },
+    _refreshTiles: function() {
+        this._pyramid._cache.reset();
+        var pyramidTiles = this._pyramid._tiles;
+        var tileKeys = Object.keys(pyramidTiles);
+        var tileCount = tileKeys.length;
+        var i;
+        for (i = 0; i < tileCount; i++) {
+            var tile = pyramidTiles[tileKeys[i]];
+            this._loadPreparedTile(tile);
+        }
+        this.lastRefresh = now();
+        if (this.animated) {
+            this.map.animationLoop.set(this.delay);
+            this.map._rerender();
+        } else if (typeof this.map._render === "function") {
+            this.map._render();
+        }
+        this.storedTiles = [];
+    },
     _abortTile: function(tile) {
         tile.aborted = true;
     },

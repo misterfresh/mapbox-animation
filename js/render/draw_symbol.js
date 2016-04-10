@@ -7,10 +7,17 @@ var drawCollisionDebug = require('./draw_collision_debug');
 var util = require('../util/util');
 var pixelsToTileUnits = require('../source/pixels_to_tile_units');
 
-
 module.exports = drawSymbols;
 
+var animated, lastRefresh, delay, transitionStyle;
+
 function drawSymbols(painter, source, layer, coords) {
+
+    animated = source.animated || false;
+    lastRefresh = source.lastRefresh;
+    delay = source.delay;
+    transitionStyle = source.transitionStyle || 0;
+
     if (painter.isOpaquePass) return;
 
     var drawAcrossEdges = !(layer.layout['text-allow-overlap'] || layer.layout['icon-allow-overlap'] ||
@@ -144,6 +151,14 @@ function drawSymbol(painter, layer, posMatrix, tile, bucket, elementGroups, pref
     gl.activeTexture(gl.TEXTURE1);
     painter.frameHistory.bind(gl);
     gl.uniform1i(program.u_fadetexture, 1);
+
+    if (animated) {
+        gl.uniform1f(program.u_completion, (browser.now() - lastRefresh) / delay);
+        gl.uniform1i(program.u_transition_style, transitionStyle);
+    } else {
+        gl.uniform1f(program.u_completion, 0.0);
+        gl.uniform1i(program.u_transition_style, 0);
+    }
 
     var group, offset, count, elementOffset;
 
