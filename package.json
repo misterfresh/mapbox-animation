@@ -78,7 +78,7 @@
     "test-suite": "node test/render.test.js && node test/query.test.js # update ci.sh if test invocation changes"
   },
   "bugs": {
-    "url": "https://github.com/misterfresh/react-easy-transition/issues"
+    "url": "https://github.com/misterfresh/mapbox-animation/issues"
   },
   "tags": [
     "map",
