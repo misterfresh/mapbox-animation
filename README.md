@@ -43,7 +43,7 @@ map.getSource('vehicles').setData(vehiclesPositions);  //markers will animate
 After running the animate method, set the "nextPosition" property, and the markers will smoothly transition to the specified coordinates.
 
 ## Live Demo
-[Mapbox animation live demo](http://misterfresh.github.io/mapbox-animation/)
+[Interpolation techniques comparison](http://misterfresh.github.io/mapbox-animation/)
 
 ## Mapbox-gl extension
 This module is mapbox-gl, extended with a new "animate" method for GeoJSON sources.
