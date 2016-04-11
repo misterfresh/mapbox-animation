@@ -44,6 +44,7 @@ After running the animate method, set the "nextPosition" property, and the marke
 
 ## Live Demo
 [Mapbox animation live demo](http://misterfresh.github.io/mapbox-animation/)
+The code of the demo is in the "example" folder.
 
 ## Mapbox-gl extension
 This module is mapbox-gl, extended with a new "animate" method for GeoJSON sources.
