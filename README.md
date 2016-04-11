@@ -1,10 +1,14 @@
 Animate a GeoJSON source easily with Mapbox GL
 
+```bash
+npm install mapbox-animation
+```
+
 ## Usage
 
 ```js
-
-map.getSource('vehicles').animate(true);  //To activate animation for this source
+var mapboxgl = require('mapbox-animation');  //Use just like mapbox-gl
+map.getSource('vehicles').animate(1000);  //To activate animation for this source with a delay of 1000ms
 var vehiclesPositions = {
     "type": "FeatureCollection",
     "features": [{
@@ -36,23 +40,39 @@ map.getSource('vehicles').setData(vehiclesPositions);  //markers will animate
 
 ```
 
-Just set the "nextPosition" property, run the animate method, and the markers will smoothly transition to the specified coordinates!
+After running the animate method, set the "nextPosition" property, and the markers will smoothly transition to the specified coordinates.
 
 ## Live Demo
 [Mapbox animation live demo](http://misterfresh.github.io/mapbox-animation/)
 
-## Installation
+## Mapbox-gl extension
+This module is mapbox-gl, extended with a new "animate" method for GeoJSON sources.
 
-```bash
-git clone https://github.com/misterfresh/mapbox-animation.git
-cd mapbox-animation
-npm install
+```js
+GeoJSONSource.animate(delay, transitionStyle);
 ```
 
-In src/app.js set your API KEY.
-```bash
-npm start
+The delay parameter is the duration of the transition. It is optional and defaults to false (no animation).
+The transition style parameter is optional, it defaults to "linear". Other available styles are "none", "bezier", "midpoints", and "circle". These other styles will only work if the "previousPosition" property is also set, because they require three points.
+
+## Performance
+
+The following layer options seemed to give the best performance:
+
+```js
+ map.addLayer({
+    "id": "layerId",
+    "type": "symbol",
+    "source": "sourceId",
+    "layout": {
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+        "text-allow-overlap": true,
+        "text-optional": true,
+    }
+});
 ```
-You should now see markers animating in your browser at the address localhost:3000.
+
+Animations were very smooth on iPhone 6S, average on 2 year-old macbook Air, and choppy on the retina macbook pro. 
 
 For more information, refer to the official mapbox-gl-js repository.
