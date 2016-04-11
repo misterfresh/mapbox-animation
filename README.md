@@ -1,5 +1,16 @@
 Animate a GeoJSON source easily with Mapbox GL
 
+## Live Demo
+[Mapbox animation features demo](http://misterfresh.github.io/mapbox-animation/)
+
+The code of the demo is in the "example" folder.
+
+## Installation
+Like regular mapbox-gl, either include the source file
+```html
+<script type="text/javascript" src="http://misterfresh.github.io/mapbox-animation/mapbox-gl.js" charset="utf-8"></script>
+```
+or install the npm package
 ```bash
 npm install mapbox-animation
 ```
@@ -7,7 +18,6 @@ npm install mapbox-animation
 ## Usage
 
 ```js
-var mapboxgl = require('mapbox-animation');  //Use just like mapbox-gl
 map.getSource('vehicles').animate(1000);  //To activate animation for this source with a delay of 1000ms
 var vehiclesPositions = {
     "type": "FeatureCollection",
@@ -41,10 +51,6 @@ map.getSource('vehicles').setData(vehiclesPositions);  //markers will animate
 ```
 
 After running the animate method, set the "nextPosition" property, and the markers will smoothly transition to the specified coordinates.
-
-## Live Demo
-[Interpolation techniques comparison](http://misterfresh.github.io/mapbox-animation/)
-The code of the demo is in the "example" folder.
 
 ## Mapbox-gl extension
 This module is mapbox-gl, extended with a new "animate" method for GeoJSON sources.
