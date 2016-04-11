@@ -76,5 +76,37 @@
     "docs": "documentation --github --format html --theme ./docs/_theme --output docs/api/",
     "test": "npm run lint && tap --reporter dot test/js/*/*.js # update ci.sh if test invocation changes",
     "test-suite": "node test/render.test.js && node test/query.test.js # update ci.sh if test invocation changes"
+  },
+  "bugs": {
+    "url": "https://github.com/misterfresh/react-easy-transition/issues"
+  },
+  "tags": [
+    "map",
+    "mapbox",
+    "mapbox-gl",
+    "animate",
+    "animation",
+    "move",
+    "markers",
+    "setdata"
+  ],
+  "keywords": [
+    "map",
+    "mapbox",
+    "mapbox-gl",
+    "animate",
+    "animation",
+    "move",
+    "markers",
+    "setdata"
+  ],
+  "verb": {
+    "related": {
+      "list": [
+        "react-easy-transition",
+        "mapbox-gl",
+        "mapbox"
+      ]
+    }
   }
 }
